@@ -1,0 +1,145 @@
+Metadata-Version: 2.1
+Name: teii
+Version: 0
+Summary: Tecnologías Específicas en Ingeniería Informática
+Home-page: UNKNOWN
+Author: TEII
+Author-email: juanf@um.es,lfmaimo@um.es
+License: UNKNOWN
+Description: # TecnologÃ­as EspecÃ­ficas en IngenierÃ­a InformÃ¡tica â€¢ Paquete `teii`
+        
+        ## Funcionalidad
+        
+        El paquete `teii` consta de un Ãºnico subpaquete  `teii.finance`. Este subpaquete
+        implementa una jerarquÃ­a de clases para realizar consultas a alguna de las
+        interfaces `HTTP` de [Alpha Vantage](https://www.alphavantage.co/). Estas
+        interfaces proporcionan informaciÃ³n financiera de diferentes naturaleza. La
+        [documentaciÃ³n de Alpha Vantage](https://www.alphavantage.co/documentation/)
+        describe todas estas interfaces. Para cada una de ellas, se describen los
+        parÃ¡metros que admiten las consultas y se proporciona un ejemplo de la respuesta
+        en formato JSON y CSV.
+        
+        Por ejemplo, la siguiente consulta a la interfaz HTTP
+        `TIME_SERIES_DAILY_ADJUSTED`:
+        
+        ```bash
+        curl 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED\
+        &symbol=IBM&outputsize=compact&apikey=MY_ALPHA_VANTAGE_API_KEY' > IBM.json
+        ```
+        
+        devuelve informaciÃ³n bursÃ¡til de la empresa IBM para las Ãºltimas 100 sesiones en
+        formato JSON.
+        
+        :warning: Para utilizar la API de Alpha Vantage sin restricciones es necesario
+        obtener una [*API Key* gratuita](https://www.alphavantage.co/support/#api-key)
+        (`MY_ALPHA_VANTAGE_API_KEY`).
+        
+        ## SÃ­mbolos (*Tickers*)
+        
+        Uno de los parÃ¡metros requeridos por las consultas a la interfaz HTTP
+        `TIME_SERIES_DAILY_ADJUSTED` es el sÃ­mbolo.
+        
+        Un sÃ­mbolo o cÃ³digo bursÃ¡til, tambiÃ©n conocido como *ticker* en inglÃ©s, es un
+        cÃ³digo alfanumÃ©rico que sirve para identificar de forma abreviada las acciones
+        de una determinada empresa que cotiza en un determinado mercado bursÃ¡til.
+        
+        Una de las interfaces HTTP de Alpha Vantage es un *search endpoint* que nos
+        permite realizar bÃºsquedas sobre el espacio de nombres de los *tickers*. Por
+        ejemplo, la siguiente consulta nos devuelve la lista de *tickers* para la
+        compaÃ±Ã­a Pfizer:
+        
+        ```bash
+        curl 'https://www.alphavantage.co/query?function=SYMBOL_SEARCH\
+        &keywords=Pfizer&apikey=MY_ALPHA_VANTAGE_API_KEY'
+        ```
+        
+        ### El formato JSON
+        
+        El formato *JavaScript Object Notation* (JSON) es un formato estÃ¡ndar usado por
+        muchas interfaces HTTP para procesar datos. De manera simplificada, el formato
+        JSON se define de forma recursiva a partir de dos tipos bÃ¡sicos, cadenas de
+        caracteres y nÃºmeros, y dos tipos compuestos, las listas (delimitadas por `[` y
+        `]`) y los objetos (delimitados por `{` y `}`). Una lista se compone de otras
+        listas u objetos. A su vez, un objeto es una secuencia de pares clave-valor
+        separados por comas. La clave debe ser una cadena de caracteres, mientras que el
+        valor puede ser cualquier otro tipo bÃ¡sico o compuesto.
+        
+        Por ejemplo:
+        
+        ```json
+        json_string = """
+        {
+            "firstName": "Jane",
+            "lastName": "Doe",
+            "hobbies": ["running", "sky diving", "singing"],
+            "age": 35,
+            "children": [
+                {
+                    "firstName": "Alice",
+                    "age": 6
+                },
+                {
+                    "firstName": "Bob",
+                    "age": 8
+                }
+            ]
+        }
+        """
+        ```
+        
+        La ventaja del formato JSON es que se puede manipular fÃ¡cilmente como un objeto
+        Python con el paquete `json`:
+        
+        ```python
+        >>> import json
+        >>> json_dict = json.loads(json_string)   # transforma la cadena en un diccionario
+        >>> print(json_dict['firstName'])   # 'firstName' es una cadena de caracteres
+        Jane
+        >>> print(json_dict['hobbies'])   # 'firstName' es una lista de cadenas de caracteres
+        ['running', 'sky diving', 'singing']
+        >>> print(json_dict['children'])   # 'children' es una lista de diccionarios
+        [{'firstName': 'Alice', 'age': 6}, {'firstName': 'Bob', 'age': 8}]
+        ```
+        
+        ## Estructura del paquete `teii`
+        
+        El paquete `teii` contiene un Ãºnico subpaquete llamado `teii.finance` compuesto de tres mÃ³dulos:
+        
+        - `exception.py`: Define las excepciones generadas por el subpaquete en
+          presencia de errores.
+        - `finance.py`: Declara la clase base `FinanceClient()`.
+        - `timeseries.py`: Declara la clase derivada `TimeSeriesFinanceClient()`.
+        
+        El archivo `teii/__init__.py` estÃ¡ vacÃ­o pero el archivo
+        `teii/finance__init__.py` no.
+        
+        - [ ] Â¿Para quÃ© sirve el contenido del archivo `teii/finance__init__.py`?
+        
+        ## Ejemplo de uso del subpaquete `teii-finance`
+        
+        El archivo `example.py` es un *script* que ilustra cÃ³mo usar el subpaquete
+        `teii.finance`. Tras importar el subpaquete, este *script* crea una instancia de
+        la clase `TimeSeriesFinanceClient()`, que consulta la interfaz
+        `TIME_SERIES_DAILY_ADJUSTED` para el *ticker* `AMZN` (Amazon). A continuaciÃ³n,
+        llama al mÃ©todo `daily_price()` que devuelve una serie de Pandas con el precio
+        de cierre diario de dicha compaÃ±Ã­a. Por Ãºltimo, el *script* dibuja una grÃ¡fica a
+        partir de la serie de Pandas.
+        
+        - [ ] Â¿Por quÃ© no se muestra ningÃºn mensaje de *logging* al ejecutar
+          `example.py`?
+        
+        ## Referencias
+        
+        - [Wikipedia â€¢ Tickers](https://en.wikipedia.org/wiki/Ticker_symbol)
+        - [Wikipedia â€¢ JSON](https://en.wikipedia.org/wiki/JSON)
+        - [Python Documentation â€¢ `json` â€” JSON encoder and decoder](https://docs.python.org/3.7/library/json.html)
+        - [Real Python â€¢ Working With JSON Data in Python](https://realpython.com/python-json/)
+        
+Keywords: teii
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
