@@ -24,7 +24,7 @@ class FinanceClient(ABC):
 
     def __init__(self, ticker: str,
                  api_key: Optional[str] = None,
-                 logging_level: Union[int, str] = logging.WARNING,
+                 logging_level: Union[int, str] = logging.INFO,
                  logging_file: Optional[str] = None) -> None:
         """ FinanceClient constructor. """
 
