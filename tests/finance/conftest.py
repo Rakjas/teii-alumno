@@ -15,6 +15,11 @@ def api_key_str(request):
     return ("nokey")
 
 
+@fixture(scope='session')
+def path2file():
+    return("./temp.csv")
+
+
 @fixture(scope='package')
 def mocked_response():
     response = mock.Mock()

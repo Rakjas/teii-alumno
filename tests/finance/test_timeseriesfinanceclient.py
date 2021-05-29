@@ -6,7 +6,7 @@ import pytest
 import pandas as pd
 import json
 
-
+from os import remove
 from teii.finance import TimeSeriesFinanceClient
 from teii.finance import FinanceClientInvalidAPIKey
 from teii.finance import FinanceClientInvalidData
@@ -84,12 +84,44 @@ def test_to_pandas_data_frame(api_key_str,
                                              check_column_type=False,
                                              check_names=False,
                                              check_frame_type=False)==None
+    
+    
+def test_to_csv_data_frame(api_key_str,
+                           mocked_response,
+                           pandas_series_IBM,
+                           path2file):
+    fc = TimeSeriesFinanceClient("IBM", api_key_str)
+    
+    df = pd.DataFrame.from_dict(pandas_series_IBM, orient='index', dtype=float)
         
+    df.index = df.index.astype("datetime64[ns]")
+    df = df.sort_index(ascending=True)
+    df[['6. volume','8. split coefficient']]=df[['6. volume','8. split coefficient']].astype('int32')
+    df = df.rename(columns={'1. open': 'open','2. high': 'high',
+                            '3. low':'low', '4. close':'close',
+                            '5. adjusted close':'aclose',
+                            '6. volume':'volume',
+                            '7. dividend amount':'dividend',
+                            '8. split coefficient':'splitc'})
+    
+    fc.to_csv(path2file)
+    file = pd.read_csv(path2file, index_col=0)
+    file.index = file.index.astype("datetime64[ns]")
+    remove(path2file)
+    print(file)
+    print(df)
+    assert pd.testing.assert_frame_equal(df,file,
+                                             check_dtype=False,
+                                             check_column_type=False,
+                                             check_names=False,
+                                             check_frame_type=False)==None
+    
         
-def test_to_pandas_data_frame_failure(api_key_str,
+def test_connect_to_API_failure(api_key_str,
                               mocked_response_failure):
     with pytest.raises(FinanceClientAPIError):
         fc = TimeSeriesFinanceClient("IBM", api_key_str)
+    
     
 
 def test_daily_volume_no_dates(api_key_str,
