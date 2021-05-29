@@ -45,7 +45,7 @@ def main():
     try:
         tf_client = tf.TimeSeriesFinanceClient(ticker,
                                                my_alpha_vantage_api_key,
-                                               logging_level=logging.WARNING)
+                                               logging_level=logging.INFO)
     # Captura y muestra todas las excepciones
     except Exception as e:
         logger.error(f"{e}", exc_info=False)
