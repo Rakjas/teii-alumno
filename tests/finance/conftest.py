@@ -28,6 +28,15 @@ def mocked_response():
 
     teii.finance.finance.requests = requests
 
+@fixture(scope='package')
+def mocked_response_failure():
+    response = mock.Mock()
+    response.status_code = 0
+    
+    requests = mock.Mock()
+    requests.get.return_value = response
+
+    teii.finance.finance.requests = requests
 
 @fixture(scope='package')
 def pandas_series_IBM_prices():
@@ -43,3 +52,10 @@ def pandas_series_IBM_prices_filtered():
         df = pd.read_csv(path2csv, index_col=0, parse_dates=True)
         ds = df['close']
     return ds
+
+
+@fixture(scope='package')
+def pandas_series_IBM():
+    with resources.open_text('teii.finance.data', 'TIME_SERIES_DAILY_MOCKED.IBM.json') as json_fid:
+        json_data = json.load(json_fid)
+    return json_data
