@@ -11,6 +11,7 @@ from teii.finance import FinanceClientInvalidData
 from teii.finance import FinanceClient
 
 
+
 class TimeSeriesFinanceClient(FinanceClient):
     """ Wrapper around the AlphaVantage API for Time Series Daily Adjusted.
 
@@ -28,6 +29,8 @@ class TimeSeriesFinanceClient(FinanceClient):
             "7. dividend amount":       ("dividend", "float"),
             "8. split coefficient":     ("splitc",   "int"),
         }
+    
+    
 
     def __init__(self, ticker: str,
                  api_key: Optional[str] = None,
@@ -127,13 +130,14 @@ class TimeSeriesFinanceClient(FinanceClient):
     def yearly_dividends(self,
                          from_year: Optional[int] = None,
                          to_year: Optional[int] = None) -> pd.Series:
-        """ Return yearly dividends from 'from_year' to 'to_year'. """
+        #""" Return yearly dividends from 'from_year' to 'to_year'. """
 
         # TODO: Tarea 3
         #   Implementa este método...
 
         return None
-
+    
+        
     def yearly_dividends_per_quarter(self,
                                      from_year: Optional[int] = None,
                                      to_year: Optional[int] = None) -> pd.Series:
@@ -143,3 +147,5 @@ class TimeSeriesFinanceClient(FinanceClient):
         #   Implementa este método...
 
         return None
+ 
+    

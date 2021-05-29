@@ -17,6 +17,7 @@ from teii.finance import FinanceClientInvalidData
 from teii.finance import FinanceClientIOError
 
 
+
 class FinanceClient(ABC):
     """ Wrapper around the Finance API. """
 
@@ -153,3 +154,6 @@ class FinanceClient(ABC):
             raise FinanceClientIOError(f"Unable to write json data into file '{path2file}'") from e
 
         return path2file
+    
+ 
+        

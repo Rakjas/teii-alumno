@@ -53,3 +53,44 @@ Name: close, Length: 5429, dtype: float64
 2020-12-31    3256.93
 Name: close, Length: 253, dtype: float64
 2021-05-29 15:51:30,733 - __main__ - INFO - Dibujando gráfica...
+2021-05-29 16:18:17,471 - __main__ - INFO - Logger creado
+2021-05-29 16:18:17,471 - __main__ - INFO - Inicio
+2021-05-29 16:18:19,888 - __main__ - INFO - 2020-01-02    1898.01
+2020-01-03    1874.97
+2020-01-06    1902.88
+2020-01-07    1906.86
+2020-01-08    1891.97
+               ...   
+2020-12-24    3172.69
+2020-12-28    3283.96
+2020-12-29    3322.00
+2020-12-30    3285.85
+2020-12-31    3256.93
+Name: close, Length: 253, dtype: float64
+2021-05-29 16:18:19,889 - __main__ - INFO - Dibujando gráfica...
+2021-05-29 16:18:29,155 - __main__ - INFO - Fin
+2021-05-29 16:20:34,320 - __main__ - INFO - Logger creado
+2021-05-29 16:20:34,320 - __main__ - INFO - Inicio
+2021-05-29 16:20:34,320 - teii.finance.finance - INFO - API key configuration
+2021-05-29 16:20:34,320 - teii.finance.finance - INFO - Finance API access...
+2021-05-29 16:20:36,398 - teii.finance.finance - INFO - Successful API access [URL: https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=AMZN&outputsize=full&apikey=https://www.alphavantage.co/support/#api-key, status: 200]
+2021-05-29 16:20:36,398 - teii.finance.finance - INFO - Finance API query response processing...
+2021-05-29 16:20:36,409 - teii.finance.finance - INFO - Metadata and data fields found
+2021-05-29 16:20:36,409 - teii.finance.finance - INFO - Metadata: '{'1. Information': 'Daily Time Series with Splits and Dividend Events', '2. Symbol': 'AMZN', '3. Last Refreshed': '2021-05-28', '4. Output Size': 'Full size', '5. Time Zone': 'US/Eastern'}'
+2021-05-29 16:20:36,439 - teii.finance.finance - INFO - Data: '{"2021-05-28": {"1. open": "3242.0", "2. high": "3247.99", "3. low": "3219.7", "4. close": "3223.07", "5. adjusted close": "3223.07", "6. volume": "2331509", "7. dividend amount": "0.0000", "8. split coefficient": "1.0...'
+2021-05-29 16:20:36,439 - teii.finance.finance - INFO - Finance API query data validation...
+2021-05-29 16:20:36,440 - teii.finance.finance - INFO - Metadata key '2. Symbol' = 'AMZN' found
+2021-05-29 16:20:36,467 - __main__ - INFO - 2020-01-02    1898.01
+2020-01-03    1874.97
+2020-01-06    1902.88
+2020-01-07    1906.86
+2020-01-08    1891.97
+               ...   
+2020-12-24    3172.69
+2020-12-28    3283.96
+2020-12-29    3322.00
+2020-12-30    3285.85
+2020-12-31    3256.93
+Name: close, Length: 253, dtype: float64
+2021-05-29 16:20:36,468 - __main__ - INFO - Dibujando gráfica...
+2021-05-29 16:21:04,169 - __main__ - INFO - Fin
