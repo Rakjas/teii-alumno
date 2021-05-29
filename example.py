@@ -10,7 +10,7 @@ import teii.finance as tf
 def setup_logging(logging_level):
     """ Crea y configura logger. """
 
-    # TODO: Tarea 3
+    # TODO: Tarea 1
     #   Configura logging para enviar la salida a un archivo
 
     logging.basicConfig(filename='example.log',format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -55,7 +55,7 @@ def main():
         #   Filtra los datos para mostrar únicamente el año 2020
 
         # Genera una serie de Pandas con precio de cierre diario
-        pd_series = tf_client.daily_price()
+        pd_series = tf_client.daily_price('2020-01-01', '2020-12-31')
 
         logger.info(pd_series)
 
