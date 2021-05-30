@@ -152,3 +152,10 @@ def pandas_series_IBM():
     with resources.open_text('teii.finance.data', 'TIME_SERIES_DAILY_MOCKED.IBM.json') as json_fid:
         json_data = json.load(json_fid)
     return json_data
+
+
+@fixture(scope='package')
+def pandas_series_IBM_dividends_filtered():
+    with resources.path('teii.finance.data', 'TIME_SERIES_DAILY_ADJUSTED.IBM.dividends.filtered.csv') as path2csv:
+        df = pd.read_csv(path2csv, index_col=0, parse_dates=True)
+    return df
