@@ -117,6 +117,43 @@ def test_to_csv_data_frame(api_key_str,
                                              check_frame_type=False)==None
 
     
+def test_daily_volume_no_dates(api_key_str,
+                               mocked_response,
+                               pandas_series_IBM_volumes):
+    fc = TimeSeriesFinanceClient("IBM", api_key_str)
+ 
+    ps = fc.daily_volume()
+    
+    assert ps.count() == 5416   
+
+    assert ps.count() == pandas_series_IBM_volumes.count()['volume']
+
+    assert pd.testing.assert_frame_equal(ps.to_frame(), pandas_series_IBM_volumes,
+                                         check_dtype=False,
+                                         check_column_type=False,
+                                         check_names=False,
+                                         check_frame_type=False)==None
+
+
+def test_daily_volume_dates(api_key_str,
+                            mocked_response,
+                            pandas_series_IBM_volumes_filtered):
+    fc = TimeSeriesFinanceClient("IBM", api_key_str)
+ 
+    ps = fc.daily_volume(datetime.date(year=2021, month=1, day=1),
+                         datetime.date(year=2021, month=2, day=28),)
+    
+    assert ps.count() == 38   
+
+    assert ps.count() == pandas_series_IBM_volumes_filtered.count()['volume']
+
+    assert pd.testing.assert_frame_equal(ps.to_frame(), pandas_series_IBM_volumes_filtered,
+                                         check_dtype=False,
+                                         check_column_type=False,
+                                         check_names=False,
+                                         check_frame_type=False)==None
+    
+    
 def test_daily_price_dates_error(api_key_str,
                                   mocked_response):
     fc = TimeSeriesFinanceClient("IBM", api_key_str)
@@ -185,13 +222,3 @@ def test_connect_to_API_failure(api_key_str,
     
     
 
-def test_daily_volume_no_dates(api_key_str,
-                               mocked_response):
-    # TODO: Tarea 3
-    pass
-
-
-def test_daily_volume_dates(api_key_str,
-                            mocked_response):
-    # TODO: Tarea 3
-    pass
