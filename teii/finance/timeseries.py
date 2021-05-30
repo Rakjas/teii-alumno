@@ -175,8 +175,45 @@ class TimeSeriesFinanceClient(FinanceClient):
 
         # TODO: Tarea 3
         #   Implementa este método...
+        
+        assert self._data_frame is not None
+        
+        if from_year is not None and to_year is not None:
+            
+            #Comprobamos que sean tipo int
+            if type(from_year) is not int or type(to_year) is not int:
+                raise FinanceClientParamError("los argumentos deben ser años del tipo int")
+            
+            
+            #Comprobamos que from_year vaya antes de to_year
+            if(from_year > to_year):
+                raise FinanceClientParamError("from_date no puede ser un año posterior a to_date")
 
-        return None
+        #Sacamos y calculamos el valor anual para la serie a devolver
+        serie = pd.DataFrame(columns=('dividend',))
+        
+        for i in range(from_year,to_year+1):
+            
+            series = self._data_frame['dividend']
+            
+            from_date = dt.date(year=i, month=1, day=1)
+            to_date = dt.date(year=i, month=12, day=31)
+            
+            series = series.loc[from_date:to_date]  
+            
+            series = series[series!=0]
+            
+            total = 0
+            
+            for value in series:
+                
+                total = total + value
+            
+            serie.loc[from_date] = [total]
+        
+        serie.index = serie.index.astype("datetime64[ns]")
+        
+        return serie
     
         
     def yearly_dividends_per_quarter(self,
@@ -186,7 +223,31 @@ class TimeSeriesFinanceClient(FinanceClient):
 
         # TODO: Tarea 3
         #   Implementa este método...
+        
+        assert self._data_frame is not None
 
+        series = self._data_frame['dividend']
+        
+        if from_year is not None and to_year is not None:
+            
+            #Comprobamos que sean tipo int
+            if type(from_year) is not int or type(to_year) is not int:
+                raise FinanceClientParamError("los argumentos deben ser años del tipo int")
+            
+            
+            #Comprobamos que from_year vaya antes de to_year
+            if(from_year > to_year):
+                raise FinanceClientParamError("from_date no puede ser un año posterior a to_date")
+            
+            from_date = dt.date(year=from_year, month=1, day=1)
+            to_date = dt.date(year=to_year, month=12, day=31)
+            
+            series = series.loc[from_date:to_date]   # type: ignore
+
+        series = series[series!=0]
+        
+        return series
+        
         return None
  
     

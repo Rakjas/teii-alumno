@@ -153,6 +153,42 @@ def test_daily_volume_dates(api_key_str,
                                          check_names=False,
                                          check_frame_type=False)==None
     
+        
+def test_yearly_dividends_per_quarter_dates(api_key_str,
+                            mocked_response,
+                            pandas_series_IBM_dividends_per_quarter_filtered):
+    fc = TimeSeriesFinanceClient("IBM", api_key_str)
+ 
+    ps = fc.yearly_dividends_per_quarter(2000,2001)
+    
+    assert ps.count() == 8   
+
+    assert ps.count() == pandas_series_IBM_dividends_per_quarter_filtered.count()['dividend']
+
+    assert pd.testing.assert_frame_equal(ps.to_frame(), pandas_series_IBM_dividends_per_quarter_filtered,
+                                         check_dtype=False,
+                                         check_column_type=False,
+                                         check_names=False,
+                                         check_frame_type=False)==None  
+       
+        
+def test_yearly_dividends_dates(api_key_str,
+                            mocked_response,
+                            pandas_series_IBM_dividends_filtered):
+    fc = TimeSeriesFinanceClient("IBM", api_key_str)
+ 
+    ps = fc.yearly_dividends(2000,2001)
+    
+    print(ps.count())
+    assert ps.count()['dividend'] == 2   
+
+    assert ps.count()['dividend'] == pandas_series_IBM_dividends_filtered.count()['dividend']
+
+    assert pd.testing.assert_frame_equal(ps, pandas_series_IBM_dividends_filtered,
+                                         check_dtype=False,
+                                         check_column_type=False,
+                                         check_names=False,
+                                         check_frame_type=False)==None  
     
 def test_daily_price_dates_error(api_key_str,
                                   mocked_response):
