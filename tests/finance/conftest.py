@@ -155,7 +155,29 @@ def pandas_series_IBM():
 
 
 @fixture(scope='package')
+def pandas_series_IBM_dividends_per_quarter_filtered():
+    with resources.path('teii.finance.data', 'TIME_SERIES_DAILY_ADJUSTED.IBM.dividends.per.quarter.filtered.csv') as path2csv:
+        df = pd.read_csv(path2csv, index_col=0, parse_dates=True)
+    return df
+
+
+@fixture(scope='package')
 def pandas_series_IBM_dividends_filtered():
     with resources.path('teii.finance.data', 'TIME_SERIES_DAILY_ADJUSTED.IBM.dividends.filtered.csv') as path2csv:
+        df = pd.read_csv(path2csv, index_col=0, parse_dates=True)
+    return df
+
+
+@fixture(scope='package')
+def pandas_series_IBM_dividends_per_quarter_unfiltered():
+    with resources.path('teii.finance.data',
+                        'TIME_SERIES_DAILY_ADJUSTED.IBM.dividends.per.quarter.unfiltered.csv') as path2csv:
+        df = pd.read_csv(path2csv, index_col=0, parse_dates=True)
+    return df
+
+
+@fixture(scope='package')
+def pandas_series_IBM_dividends_unfiltered():
+    with resources.path('teii.finance.data', 'TIME_SERIES_DAILY_ADJUSTED.IBM.dividends.unfiltered.csv') as path2csv:
         df = pd.read_csv(path2csv, index_col=0, parse_dates=True)
     return df
