@@ -9,6 +9,7 @@ from typing import Optional, Union
 
 from teii.finance import FinanceClientInvalidData
 from teii.finance import FinanceClient
+from teii.finance.exception import FinanceClientParamError
 
 
 
@@ -122,9 +123,18 @@ class TimeSeriesFinanceClient(FinanceClient):
         # TODO: Tarea 3
         #   Comprueba el valor, tipo y secuencia de from_date/to_date y
         #   genera excepción 'FinanceClientParamError' en caso de error
-
+        
         # FIXME: type hint error
         if from_date is not None and to_date is not None:
+            
+            #Comprobamos que sean tipo date
+            if type(from_date) is not dt.date or type(to_date) is not dt.date:
+                raise FinanceClientParamError("los argumentos deben ser fechas del tipo dt.date")
+            
+            #Comprobamos que from_date vaya antes de to_date
+            if(from_date > to_date):
+                raise FinanceClientParamError("from_date no puede ser una fecha posterior a to_date")
+            
             series = series.loc[from_date:to_date]   # type: ignore
 
         return series
@@ -144,6 +154,16 @@ class TimeSeriesFinanceClient(FinanceClient):
 
         # FIXME: type hint error
         if from_date is not None and to_date is not None:
+            
+            #Comprobamos que sean tipo date
+            if type(from_date) is not dt.date or type(to_date) is not dt.date:
+                raise FinanceClientParamError("los argumentos deben ser fechas del tipo dt.date")
+            
+            
+             #Comprobamos que from_date vaya antes de to_date
+            if(from_date > to_date):
+                raise FinanceClientParamError("from_date no puede ser una fecha posterior a to_date")
+            
             series = series.loc[from_date:to_date]   # type: ignore
 
         return series
