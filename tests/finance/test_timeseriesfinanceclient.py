@@ -11,6 +11,7 @@ from teii.finance import TimeSeriesFinanceClient
 from teii.finance import FinanceClientInvalidAPIKey
 from teii.finance import FinanceClientInvalidData
 from teii.finance import FinanceClientAPIError
+from teii.finance.exception import FinanceClientParamError
 from importlib import resources
 
 
@@ -115,6 +116,42 @@ def test_to_csv_data_frame(api_key_str,
                                              check_names=False,
                                              check_frame_type=False)==None
 
+    
+def test_daily_price_dates_error(api_key_str,
+                                  mocked_response):
+    fc = TimeSeriesFinanceClient("IBM", api_key_str)
+    
+    with pytest.raises(FinanceClientParamError):
+        fc.daily_price(datetime.date(year=2021, month=1, day=1),
+                            datetime.date(year=2020, month=1, day=1),)
+    
+    
+def test_daily_price_params_error(api_key_str,
+                                  mocked_response):
+    fc = TimeSeriesFinanceClient("IBM", api_key_str)
+    
+    with pytest.raises(FinanceClientParamError):
+        fc.daily_price("Lunes",
+                            datetime.date(year=2020, month=1, day=1),)        
+    
+    
+def test_daily_volume_dates_error(api_key_str,
+                                  mocked_response):
+    fc = TimeSeriesFinanceClient("IBM", api_key_str)
+    
+    with pytest.raises(FinanceClientParamError):
+        fc.daily_volume(datetime.date(year=2021, month=1, day=1),
+                            datetime.date(year=2020, month=1, day=1),)
+        
+
+def test_daily_volume_params_error(api_key_str,
+                                  mocked_response):
+    fc = TimeSeriesFinanceClient("IBM", api_key_str)
+    
+    with pytest.raises(FinanceClientParamError):
+        fc.daily_volume("Lunes",
+                        datetime.date(year=2020, month=1, day=1),)        
+        
     
 def test_malformed_JSON_column_names(api_key_str,
                                      mocked_response_malformed_cnames):

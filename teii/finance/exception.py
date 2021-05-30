@@ -45,3 +45,11 @@ class FinanceClientIOError(FinanceClientError):
     def __init__(self, message):
         super().__init__('%s: %s' % (self.__class__.__name__, message))
         
+        
+class FinanceClientParamError(FinanceClientError):
+    """
+    Error in client parameters, format or data
+    """
+
+    def __init__(self, message):
+        super().__init__('%s: %s' % (self.__class__.__name__, message))
