@@ -44,3 +44,4 @@ class FinanceClientIOError(FinanceClientError):
 
     def __init__(self, message):
         super().__init__('%s: %s' % (self.__class__.__name__, message))
+        

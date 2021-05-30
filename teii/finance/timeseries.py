@@ -47,19 +47,40 @@ class TimeSeriesFinanceClient(FinanceClient):
         # TODO: Handle conversion errors
 
         # Build Panda's data frame
-        data_frame = pd.DataFrame.from_dict(self._json_data, orient='index', dtype=float)
-
+        try:
+            data_frame = pd.DataFrame.from_dict(self._json_data, orient='index', dtype=float)
+        except Exception as e:
+            raise  FinanceClientInvalidData("JSON malformed, unable to create DataFrame from data")
+        else:
+             self._logger.info(f"Data from dict in JSON converted to DataFrame")
+                
         # Rename data fields
-        data_frame = data_frame.rename(columns={key: name_type[0]
-                                                for key, name_type in self._data_field2name_type.items()})
-
+        try:
+            data_frame = data_frame.rename(columns={key: name_type[0]
+                                                    for key, name_type in self._data_field2name_type.items()})
+        except Exception as e:
+            raise  FinanceClientInvalidData("JSON columns name do not match, error while formatting")
+        else:
+            self._logger.info(f"Dataframe column names converted")
+            
         # Set data field types
-        data_frame = data_frame.astype(dtype={name_type[0]: name_type[1]
-                                              for key, name_type in self._data_field2name_type.items()})
+        
+        try:
+            data_frame = data_frame.astype(dtype={name_type[0]: name_type[1]
+                                                  for key, name_type in self._data_field2name_type.items()})
+        except Exception as e:
+            raise  FinanceClientInvalidData("Cannot convert to expected datatypes, error while formatting")
+        else:
+            self._logger.info(f"Dataframe column converted to the right types")    
 
         # Set index type
-        data_frame.index = data_frame.index.astype("datetime64[ns]")
-
+        try:
+            data_frame.index = data_frame.index.astype("datetime64[ns]")
+        except Exception as e:
+            raise  FinanceClientInvalidData("JSON index cannot be converted to datetime, error while formatting")
+        else:
+            self._logger.info(f"Dataframe index converted to datetime")
+            
         # Sort data
         self._data_frame = data_frame.sort_index(ascending=True)
 
