@@ -108,14 +108,38 @@ def test_to_csv_data_frame(api_key_str,
     file = pd.read_csv(path2file, index_col=0)
     file.index = file.index.astype("datetime64[ns]")
     remove(path2file)
-    print(file)
-    print(df)
+    
     assert pd.testing.assert_frame_equal(df,file,
                                              check_dtype=False,
                                              check_column_type=False,
                                              check_names=False,
                                              check_frame_type=False)==None
+
     
+def test_malformed_JSON_column_names(api_key_str,
+                                     mocked_response_malformed_cnames):
+    with pytest.raises(FinanceClientInvalidData):
+        fc = TimeSeriesFinanceClient("IBM", api_key_str)
+                        
+
+def test_malformed_JSON_type(api_key_str,
+                             mocked_response_malformed_type):
+    with pytest.raises(FinanceClientInvalidData):
+        fc = TimeSeriesFinanceClient("IBM", api_key_str)
+               
+            
+
+def test_malformed_JSON_format(api_key_str,
+                             mocked_response_malformed_format):
+    with pytest.raises(FinanceClientInvalidData):
+        fc = TimeSeriesFinanceClient("IBM", api_key_str)
+               
+            
+def test_malformed_JSON_index(api_key_str,
+                              mocked_response_malformed_index):
+    with pytest.raises(FinanceClientInvalidData):
+        fc = TimeSeriesFinanceClient("IBM", api_key_str)
+                        
         
 def test_connect_to_API_failure(api_key_str,
                               mocked_response_failure):
