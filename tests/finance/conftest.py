@@ -5,6 +5,7 @@ import json
 import pandas as pd
 import unittest.mock as mock
 import teii.finance.finance
+import datetime as dt
 
 from importlib import resources
 from pytest import fixture
@@ -18,6 +19,12 @@ def api_key_str(request):
 @fixture(scope='session')
 def path2file():
     return("./temp.csv")
+
+
+@fixture(scope='session')
+def pandas_series_IBM_highest_daily_variation():
+    date = pd.to_datetime('2020-03-16')
+    return[date, 107.41, 95.0, 12.409999999999997]
 
 
 @fixture(scope='package')
