@@ -178,6 +178,8 @@ class TimeSeriesFinanceClient(FinanceClient):
         
         assert self._data_frame is not None
         
+        serie = pd.DataFrame(columns=('dividend',))
+        
         if from_year is not None and to_year is not None:
             
             #Comprobamos que sean tipo int
@@ -189,27 +191,48 @@ class TimeSeriesFinanceClient(FinanceClient):
             if(from_year > to_year):
                 raise FinanceClientParamError("from_date no puede ser un año posterior a to_date")
 
-        #Sacamos y calculamos el valor anual para la serie a devolver
-        serie = pd.DataFrame(columns=('dividend',))
-        
-        for i in range(from_year,to_year+1):
-            
-            series = self._data_frame['dividend']
-            
-            from_date = dt.date(year=i, month=1, day=1)
-            to_date = dt.date(year=i, month=12, day=31)
-            
-            series = series.loc[from_date:to_date]  
-            
-            series = series[series!=0]
-            
-            total = 0
-            
-            for value in series:
+            #Sacamos y calculamos el valor anual para la serie a devolver
+
+            for i in range(from_year,to_year+1):
+
+                series = self._data_frame['dividend']
+
+                from_date = dt.date(year=i, month=1, day=1)
+                to_date = dt.date(year=i, month=12, day=31)
+
+                series = series.loc[from_date:to_date]  
+
+                series = series[series!=0]
                 
-                total = total + value
+                total = 0
+                
+                for value in series:
+
+                    total = total + value
+
+                serie.loc[from_date] = [total]
+                
+        #no especificamos dates
+        else:
             
-            serie.loc[from_date] = [total]
+            for i in range(self._data_frame['dividend'].head(1).index.year.values.astype(int)[0],
+                           self._data_frame['dividend'].tail(1).index.year.values.astype(int)[0] + 1):
+
+                series = self._data_frame['dividend']
+
+                from_date = dt.date(year=i, month=1, day=1)
+                to_date = dt.date(year=i, month=12, day=31)
+
+                series = series.loc[from_date:to_date]  
+
+                series = series[series!=0]
+                total = 0
+                
+                for value in series:
+                     
+                    total = total + value
+
+                serie.loc[from_date] = [total]
         
         serie.index = serie.index.astype("datetime64[ns]")
         
