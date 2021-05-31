@@ -170,7 +170,21 @@ def test_yearly_dividends_per_quarter_dates(api_key_str,
                                          check_column_type=False,
                                          check_names=False,
                                          check_frame_type=False)==None  
-       
+        
+        
+def test_yearly_dividends_per_quarter_wrong_dates(api_key_str,
+                            mocked_response):
+    fc = TimeSeriesFinanceClient("IBM", api_key_str)
+    with pytest.raises(FinanceClientParamError):
+        ps = fc.yearly_dividends_per_quarter(2001,2000)
+
+        
+def test_yearly_dividends_per_quarter_wrong_type_param(api_key_str,
+                            mocked_response):
+    fc = TimeSeriesFinanceClient("IBM", api_key_str)
+    with pytest.raises(FinanceClientParamError):
+        ps = fc.yearly_dividends_per_quarter('no_date',2000)        
+        
         
 def test_yearly_dividends_per_quarter_no_dates(api_key_str,
                             mocked_response,
@@ -224,7 +238,21 @@ def test_yearly_dividends_no_dates(api_key_str,
                                          check_column_type=False,
                                          check_names=False,
                                          check_frame_type=False)==None   
+
     
+def test_yearly_dividends_dates_wrong_type_param(api_key_str,
+                            mocked_response):
+    fc = TimeSeriesFinanceClient("IBM", api_key_str)
+    with pytest.raises(FinanceClientParamError):
+        ps = fc.yearly_dividends('no_date',2000)      
+    
+       
+def test_yearly_dividends_dates_wrong_dates(api_key_str,
+                            mocked_response):
+    fc = TimeSeriesFinanceClient("IBM", api_key_str)
+    with pytest.raises(FinanceClientParamError):
+        ps = fc.yearly_dividends(2001,2000)    
+        
 
 def test_highest_daily_variation(api_key_str,
                                  mocked_response,
@@ -233,6 +261,16 @@ def test_highest_daily_variation(api_key_str,
     ps = fc.highest_daily_variation()
     
     assert ps == pandas_series_IBM_highest_daily_variation
+    
+
+
+def test_highest_monthly_mean_variation(api_key_str,
+                                 mocked_response,
+                                 pandas_series_IBM_highest_monthly_mean_variation):
+    fc = TimeSeriesFinanceClient("IBM", api_key_str)
+    ps = fc.highest_monthly_mean_variation()
+    
+    assert ps == pandas_series_IBM_highest_monthly_mean_variation
     
     
 def test_daily_price_dates_error(api_key_str,

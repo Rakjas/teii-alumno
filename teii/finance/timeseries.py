@@ -4,6 +4,7 @@
 import datetime as dt
 import logging
 import pandas as pd
+from calendar import monthrange
 
 from typing import Optional, Union
 
@@ -298,3 +299,54 @@ class TimeSeriesFinanceClient(FinanceClient):
                                                 maxdiff]
         
     
+    def highest_monthly_mean_variation(self) -> [dt.date, float]:
+        """Return month where the mean of the diference between high and low was the highest of the ticker"""
+        
+        assert self._data_frame is not None
+        
+        index=0
+        maxmean=0
+        aux=0
+        
+        #recorremos anualmente los valores
+        for i in range(self._data_frame.head(1).index.year.values.astype(int)[0],
+                       self._data_frame.tail(1).index.year.values.astype(int)[0] + 1):
+            #recorremos mes a mes del año
+            for j in range(1,13):
+                
+                high = self._data_frame['high']
+                low = self._data_frame['low']
+
+                from_date = dt.date(year=i, month=j, day=1)
+                to_date = dt.date(year=i, month=j, day=monthrange(i, j)[1])
+
+                high = high.loc[from_date:to_date] 
+                low = low.loc[from_date:to_date] 
+                
+                diffparcial = 0
+                dias = 0
+                #recorremos dia a dia para sumar las diferencias
+                for h,l in zip(high, low):
+
+                    diff= h - l
+                    diffparcial = diffparcial + diff
+                    aux = aux + 1
+                    dias = dias + 1
+                
+                #calculamos la media del mes
+                if dias != 0:
+                    mean = diffparcial/dias
+
+                    #si es la mayor hasta la fecha la guardamos junto con su indice
+                    if mean>maxmean:
+                            maxmean = mean
+                            index = aux-1
+                            
+        high = self._data_frame['high']
+        low = self._data_frame['low']        
+        years = high.index.values[index].astype('datetime64[Y]').astype(int) + 1970
+        months = high.index.values[index].astype('datetime64[M]').astype(int) % 12 + 1
+        
+        date = dt.date(year=years, month=months, day=1)
+        
+        return [date, maxmean]

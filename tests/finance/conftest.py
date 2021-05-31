@@ -27,6 +27,12 @@ def pandas_series_IBM_highest_daily_variation():
     return[date, 107.41, 95.0, 12.409999999999997]
 
 
+@fixture(scope='session')
+def pandas_series_IBM_highest_monthly_mean_variation():
+    date = pd.to_datetime('2020-03-01')
+    return[date,  6.833636363636362]
+    
+    
 @fixture(scope='package')
 def mocked_response():
     response = mock.Mock()
