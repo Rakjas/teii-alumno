@@ -223,7 +223,16 @@ def test_yearly_dividends_no_dates(api_key_str,
                                          check_dtype=False,
                                          check_column_type=False,
                                          check_names=False,
-                                         check_frame_type=False)==None    
+                                         check_frame_type=False)==None   
+    
+
+def test_highest_daily_variation(api_key_str,
+                                 mocked_response,
+                                 pandas_series_IBM_highest_daily_variation):
+    fc = TimeSeriesFinanceClient("IBM", api_key_str)
+    ps = fc.highest_daily_variation()
+    
+    assert ps == pandas_series_IBM_highest_daily_variation
     
     
 def test_daily_price_dates_error(api_key_str,

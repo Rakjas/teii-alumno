@@ -171,7 +171,7 @@ class TimeSeriesFinanceClient(FinanceClient):
     def yearly_dividends(self,
                          from_year: Optional[int] = None,
                          to_year: Optional[int] = None) -> pd.Series:
-        #""" Return yearly dividends from 'from_year' to 'to_year'. """
+        """ Return yearly dividends from 'from_year' to 'to_year'. """
 
         # TODO: Tarea 3
         #   Implementa este método...
@@ -271,6 +271,30 @@ class TimeSeriesFinanceClient(FinanceClient):
         
         return series
         
-        return None
- 
+    
+    def highest_daily_variation(self) -> [dt.date, float, float, float]:
+        """Return date where the diference between high and low was the highest of the ticker"""
+        
+        assert self._data_frame is not None
+        
+        high = self._data_frame['high']
+        low = self._data_frame['low']
+        
+        index=0
+        maxdiff=0
+        i=0
+        for h,l in zip(high, low):
+          
+            diff= h - l
+            
+            if diff>maxdiff:
+                maxdiff = diff
+                index = i
+            i = i + 1
+        
+        return [high.index.values[index].astype("datetime64[ns]"),
+                                                high.values[index],
+                                                low.values[index],
+                                                maxdiff]
+        
     
