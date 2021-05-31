@@ -4,7 +4,6 @@
 import json
 import logging
 import os
-import pandas as pd
 import requests
 
 from abc import ABC, abstractclassmethod
@@ -22,7 +21,7 @@ class FinanceClient(ABC):
 
     _FinanceBaseQueryURL = "https://www.alphavantage.co/query?"  # Class variable
 
-    def __init__(self, ticker: str,
+    def __init__(self, ticker: list,
                  api_key: Optional[str] = None,
                  logging_level: Union[int, str] = logging.INFO,
                  logging_file: Optional[str] = None) -> None:
@@ -66,7 +65,7 @@ class FinanceClient(ABC):
         # handler.setFormatter(formatter)
         # self._logger.addHandler(handler)
 
-    def _build_base_query_url(self) -> str:
+    def _build_base_query_url(self) -> list:
         """Return base query URL.
 
         URL is independent from the query type.
@@ -88,18 +87,22 @@ class FinanceClient(ABC):
 
         pass
 
-    def _query_api(self) -> requests.Response:
+    def _query_api(self) -> list:
         """ Query API endpoint. """
+        response = list()
+        i = 0
+        for query in self._build_base_query_url_params():
+            try:
+                response.append(requests.get(f"{self._build_base_query_url()}{self._build_base_query_url_params()}"))
+                assert response[i].status_code == 200
 
-        try:
-            response = requests.get(f"{self._build_base_query_url()}{self._build_base_query_url_params()}")
-            assert response.status_code == 200
-        except Exception as e:
-            raise FinanceClientAPIError(f"Unsuccessful API access "
-                                        f"[URL: {response.url}, status: {response.status_code}]") from e
-        else:
-            self._logger.info(f"Successful API access "
-                              f"[URL: {response.url}, status: {response.status_code}]")
+            except Exception as e:
+                raise FinanceClientAPIError(f"Unsuccessful API access "
+                                            f"[URL: {response[i].url}, status: {response[i].status_code}]") from e
+            else:
+                self._logger.info(f"Successful API access "
+                                  f"[URL: {response[i].url}, status: {response[i].status_code}]")
+                i = i + 1
         return response
 
     @classmethod
@@ -114,20 +117,25 @@ class FinanceClient(ABC):
 
         pass
 
-    def _process_query_response(self, response: requests.Response) -> None:
+    def _process_query_response(self, response: list) -> None:
         """ Preprocess query data. """
+        json_data_downloaded = list()
+        self._json_metadata = list()
+        self._json_data = list()
+        i = 0
+        for responses in response:
+            try:
+                json_data_downloaded.append(responses.json())
+                self._json_metadata.append(json_data_downloaded[i][self._build_query_metadata_key()])
+                self._json_data.append(json_data_downloaded[i][self._build_query_data_key()])
+            except Exception as e:
+                raise FinanceClientInvalidData("Invalid data") from e
+            else:
+                self._logger.info("Metadata and data fields found")
 
-        try:
-            json_data_downloaded = response.json()
-            self._json_metadata = json_data_downloaded[self._build_query_metadata_key()]
-            self._json_data = json_data_downloaded[self._build_query_data_key()]
-        except Exception as e:
-            raise FinanceClientInvalidData("Invalid data") from e
-        else:
-            self._logger.info("Metadata and data fields found")
-
-        self._logger.info(f"Metadata: '{self._json_metadata}'")
-        self._logger.info(f"Data: '{json.dumps(self._json_data)[0:218]}...'")
+            self._logger.info(f"Metadata: '{self._json_metadata[i]}'")
+            self._logger.info(f"Data: '{json.dumps(self._json_data[i])[0:218]}...'")
+            i = i + 1
 
     @abstractclassmethod
     def _validate_query_data(self) -> None:
@@ -135,21 +143,22 @@ class FinanceClient(ABC):
 
         pass
 
-    def to_pandas(self) -> pd.DataFrame:
+    def to_pandas(self) -> list:
         """ Return pandas data frame from json data. """
-
-        assert self._data_frame is not None
-
-        return self._data_frame
+        response = list()
+        for data in self._data_frame:
+            assert data is not None
+            response.append(data)
+        return response
 
     def to_csv(self, path2file: Path) -> Path:
         """ Write json data into csv file 'path2file'. """
+        for data in self._data_frame:
+            assert data is not None
 
-        assert self._data_frame is not None
-
-        try:
-            self._data_frame.to_csv(path2file)
-        except (IOError, PermissionError) as e:
-            raise FinanceClientIOError(f"Unable to write json data into file '{path2file}'") from e
+            try:
+                data.to_csv(path2file, mode='a')
+            except (IOError, PermissionError) as e:
+                raise FinanceClientIOError(f"Unable to write json data into file '{path2file}'") from e
 
         return path2file
