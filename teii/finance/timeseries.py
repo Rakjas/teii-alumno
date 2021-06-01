@@ -17,6 +17,69 @@ class TimeSeriesFinanceClient(FinanceClient):
     """ Wrapper around the AlphaVantage API for Time Series Daily Adjusted.
         Source:
             https://www.alphavantage.co/documentation/ (TIME_SERIES_DAILY_ADJUSTED)
+
+    Parameters
+    ----------
+    ticker : list of str
+        List of tickers wich will be used to query data from alpha vantage, each of
+        them will be answered with a json with financial data of the client represented
+        by that ticker (for example AMZN -> Amazon)
+
+    api_key : [optional] str, default = None
+        Api_key that will be used to request the data in the API
+
+    logging_level : [optional] Union of int and str, default logging.WARNING
+        Level of info that will be written by the logger in a log file
+
+    Attributes
+    ----------
+    _data_field2name_type : dict of tuples of str
+        Contains traductions to generate the data frame columns names and their types
+        Will be used several times when building pandas dataframes from the json data.
+
+    _data_frame : list of pandas.dataframes
+        Contains all the data from the tickers obtained from queries to de API after
+        being procesed and given the right format
+
+    _logger : object
+        Reference to the object that will be used to generate the log file
+
+    _json_data : list of dict
+        Where all the info obtained from the queries to the API will be stored
+        before being processed and transformed into a DataFrame
+
+    Methods
+    -------
+
+    __init__(ticker, api_key, logging_level)
+        Constructor for TimeSeriesFinanceClient
+
+    daily_price(from_date: Optional[dt.date] = None,
+                to_date: Optional[dt.date] = None)
+        Return daily close price from 'from_date' to 'to_date, or if no date are specified
+        daily close price from all the data avaliable.
+
+    daily_volume(from_date: Optional[dt.date] = None,
+                 to_date: Optional[dt.date] = None)
+        Return daily volume from 'from_date' to 'to_date', or if no date are specified
+        daily volume from all the data avaliable.
+
+    yearly_dividends(from_year: Optional[int] = None,
+                     to_year: Optional[int] = None)
+        Return yearly dividends from 'from_year' to 'to_year', or if no dates are specified
+        dividends from all the data avaliable by years.
+
+    yearly_dividends_per_quarter(from_year: Optional[int] = None,
+                                 to_year: Optional[int] = None)
+        Return yearly dividends per quarter from 'from_year' to 'to_year', or if no dates
+        are specified dividens from all the data avaliable by quarters.
+
+    highest_daily_variation()
+        Return date where the diference between high and low was the highest of the ticker
+
+    highest_monthly_mean_variation()
+        Return month where the mean of the diference between high and low was the highest of the ticker
+
     """
     _data_field2name_type = {
             "1. open":                  ("open",     "float"),
@@ -32,14 +95,44 @@ class TimeSeriesFinanceClient(FinanceClient):
     def __init__(self, ticker: list,
                  api_key: Optional[str] = None,
                  logging_level: Union[int, str] = logging.WARNING) -> None:
-        """ TimeSeriesFinanceClient constructor. """
+        """ TimeSeriesFinanceClient constructor.
+
+        Parameters
+        ----------
+
+    ticker : list of str
+        List of tickers wich will be used to query data from alpha vantage, each of
+        them will be answered with a json with financial data of the client represented
+        by that ticker (for example AMZN -> Amazon)
+
+    api_key : [optional] str, default = None
+        Api_key that will be used to request the data in the API
+
+    logging_level : [optional] Union of int and str, default logging.WARNING
+        Level of info that will be written by the logger in a log file
+
+        Notes
+        -----
+        This class is actually a subclass from the abstract class 'FinanceClient'.
+        This constructor relies on father's constructor and only implements few
+        parts on _build_base_query_url_params(), _build_query_data_key(),
+        _build_data_frame and _validate_query_data(self).
+
+        """
 
         super().__init__(ticker, api_key, logging_level)
 
         self._build_data_frame()
 
     def _build_data_frame(self) -> None:
-        """ Build Panda's DataFrame and format data. """
+        """ Build Panda's DataFrame and format data.
+
+        Notes
+        -----
+        Part of the constructor function, will be called at the end to store in _data_frame
+        a list with all the dataframes obtained from queries to the API using tickers
+
+        """
 
         # TODO: Handle conversion errors
 
@@ -105,8 +198,15 @@ class TimeSeriesFinanceClient(FinanceClient):
         return "Time Series (Daily)"
 
     def _validate_query_data(self) -> None:
-        """ Validate query data. """
-        i = 0
+        """ Validate query data.
+
+        Notes
+        -----
+        Auxiliar function that checks the format of the obtained data and metadata
+        Used by the constructor.
+
+        """
+
         for meta, tick in zip(self._json_metadata, self._ticker):
             try:
                 assert meta["2. Symbol"] == tick
@@ -114,12 +214,41 @@ class TimeSeriesFinanceClient(FinanceClient):
                 raise FinanceClientInvalidData("Metadata field '2. Symbol' not found") from e
             else:
                 self._logger.info(f"Metadata key '2. Symbol' = '{tick}' found")
-                i = i + 1
 
     def daily_price(self,
                     from_date: Optional[dt.date] = None,
                     to_date: Optional[dt.date] = None) -> list:
-        """ Return daily close price from 'from_date' to 'to_date'. """
+        """
+        Return daily close price from 'from_date' to 'to_date, or if no date are specified
+        daily close price from all the data avaliable.
+
+        Parameters
+        ----------
+    from_date : [optional] datetime.date
+        Starting date used to filter the data.
+
+    to_date : [optional] datetime.date
+        Last date that will be filtered from data.
+
+        Returns
+        -------
+        List of dataframes, one for each ticker used to build the Financial client.
+        All of them filled with only the column 'close' that represents close price.
+
+        Other Parameters
+        ----------------
+    response : list of dataframes
+        Auxiliar variable that store the diferent data filtered, as it is
+        generated on different loops and we need to merge it together to return
+        it at the end.
+
+    series : pandas.DataFrame
+        Dataframe containing the data from the list of dataframes stored on _data_frame
+        that will be looped throught.
+        On each main iteration represents the data from each ticker used to build the
+        Finance client object created.
+
+        """
         response = list()
         self._logger.info("Starting daily_price query")
         for data in self._data_frame:
@@ -151,7 +280,38 @@ class TimeSeriesFinanceClient(FinanceClient):
     def daily_volume(self,
                      from_date: Optional[dt.date] = None,
                      to_date: Optional[dt.date] = None) -> list:
-        """ Return daily volume from 'from_date' to 'to_date'. """
+        """
+        Return daily volume from 'from_date' to 'to_date', or if no date are specified
+        daily volume from all the data avaliable.
+
+        Parameters
+        ----------
+    from_date : [optional] datetime.date
+        Starting date used to filter the data.
+
+    to_date : [optional] datetime.date
+        Last date that will be filtered from data.
+
+        Returns
+        -------
+        List of dataframes, one for each ticker used to build the Financial client.
+        All of them filled with only the column 'volume' that represents the volume
+        obtained by the company.
+
+        Other Parameters
+        ----------------
+    response : list of dataframes
+        Auxiliar variable that store the diferent data filtered, as it is
+        generated on different loops and we need to merge it together to return
+        it at the end.
+
+    series : pandas.DataFrame
+        Dataframe containing the data from the list of dataframes stored on _data_frame
+        that will be looped throught.
+        On each main iteration represents the data from each ticker used to build the
+        Finance client object created.
+
+        """
         response = list()
         self._logger.info("Starting daily_volume query")
         for data in self._data_frame:
@@ -181,7 +341,50 @@ class TimeSeriesFinanceClient(FinanceClient):
     def yearly_dividends(self,
                          from_year: Optional[int] = None,
                          to_year: Optional[int] = None) -> list:
-        """ Return yearly dividends from 'from_year' to 'to_year'. """
+        """
+        Return yearly dividends from 'from_year' to 'to_year', or if no dates are specified
+        dividends from all the data avaliable by years.
+
+        Parameters
+        ----------
+    from_year : [optional] int
+        Starting year used to filter the data.
+
+    to_year : [optional] int
+        Last year that will be filtered from data.
+
+        Returns
+        -------
+        List of dataframes, one for each ticker used to build the Financial client.
+        All of them filled with only the column 'divinded' that represents the dividend
+        obtained throught the year summed up.
+
+        Other Parameters
+        ----------------
+    response : list of dataframes
+        Auxiliar variable that store the diferent data filtered, as it is
+        generated on different loops and we need to merge it together to return
+        it at the end.
+
+    from_date : datetime.date
+        Starting date used to filter the data and build using the from_year variable.
+
+    to_date : datetime.date
+        Last date that will be filtered from data and build using the to_year variable.
+
+    serie : pandas.DataFrame
+        Empty DataFrame where the dividend will be stored on loops and in the end returned.
+
+    series : pandas.DataFrame
+        Dataframe containing the data from the list of dataframes stored on _data_frame
+        that will be looped throught to make the calculations that will be added to serie.
+        On each main iteration represents the data from each ticker used to build the
+        Finance client object created.
+
+    total : int
+        Auxiliar variable used to store the summatory of dividends.
+
+        """
         self._logger.info("Starting yearly_dividend query")
         # TODO: Tarea 3
         #   Implementa este método...
@@ -252,7 +455,38 @@ class TimeSeriesFinanceClient(FinanceClient):
     def yearly_dividends_per_quarter(self,
                                      from_year: Optional[int] = None,
                                      to_year: Optional[int] = None) -> list:
-        """ Return yearly dividends per quarter from 'from_year' to 'to_year'. """
+        """
+        Return yearly dividends per quarter from 'from_year' to 'to_year', or if no dates
+        are specified dividens from all the data avaliable by quarters.
+
+        Parameters
+        ----------
+    from_year : [optional] int
+        Starting year used to filter the data.
+
+    to_year : [optional] int
+        Last year that will be filtered from data.
+
+        Returns
+        -------
+        List of dataframes, one for each ticker used to build the Financial client.
+        All of them filled with only the column 'dividend' that represents the dividend obtained
+        on each quarter.
+
+        Other Parameters
+        ----------------
+    response : list of dataframes
+        Auxiliar variable that store the diferent data filtered, as it is
+        generated on different loops and we need to merge it together to return
+        it at the end.
+
+    series : pandas.DataFrame
+        Dataframe containing the data from the list of dataframes stored on _data_frame
+        that will be looped throught.
+        On each main iteration represents the data from each ticker used to build the
+        Finance client object created.
+
+        """
         # TODO: Tarea 3
         #   Implementa este método...
         self._logger.info("Starting yearly_dividend query")
@@ -284,7 +518,51 @@ class TimeSeriesFinanceClient(FinanceClient):
         return response
 
     def highest_daily_variation(self) -> list:
-        """Return date where the diference between high and low was the highest of the ticker"""
+        """
+        Return date where the diference between high and low was the highest of the ticker
+
+        Returns
+        -------
+        A list of lists [date, maxdiff, high, low], containing the max diference between the
+        columns high and low daily that we have found, the date on wich it happens, and
+        both values 'high' and 'low' that creates that diference on each ticker used to
+        build the FinanceClient.
+
+        Other Parameters
+        ----------------
+    response : list of dataframes
+        Auxiliar variable that store the diferent data filtered, as it is 
+        generated on different loops and we need to merge it together to return
+        it at the end.
+
+    data : pandas.DataFrame
+        Dataframe containing the data from the list of dataframes stored on _data_frame
+        that will be looped throught.
+        On each main iteration represents the data from each ticker used to build the
+        Finance client object created.
+
+    high : pandas.DataFrame
+        Dataframe containing only the 'high' column of the original, used to calculate
+        the diference and to obtain the max value that is also required.
+
+    low : pandas.DataFrame
+        Dataframe containing only the 'low' column of the original, used to calculate
+        the diference and to obtain the low value that is also required.
+
+    index : int
+        Auxiliar value that stores the maximum diff index found at each loop, its needed
+        to obtain the final values once the search (loop) ends.
+
+    maxdiff : int
+        Auxiliar value that stores the maximum diff value found at each loop, its needed
+        to compare with the new diff values that we found each loop, and check if we have
+        found a new maximum diference.
+
+    i : int
+        Auxiliar value that iterates with the loop to store its value on 'index' variable
+        each time 'maxdiff' finds a new maximum diference value, it counts the number of loops.
+
+        """
         response = list()
         self._logger.info("Starting highest_daily_variation query")
         for data in self._data_frame:
@@ -312,7 +590,66 @@ class TimeSeriesFinanceClient(FinanceClient):
         return response
 
     def highest_monthly_mean_variation(self) -> list:
-        """Return month where the mean of the diference between high and low was the highest of the ticker"""
+        """
+        Return month where the mean of the diference between high and low was the highest of the ticker
+
+        Returns
+        -------
+        A list of lists [date, mean of maxdiff], containing the mean value of the diference high-low
+        in the month with max diference between the columns high and low daily that we have found and the
+        date on wich it happens, on each ticker used to build the FinanceClient.
+
+        Other Parameters
+        ----------------
+    response : list of dataframes
+        Auxiliar variable that store the diferent data filtered, as it is
+        generated on different loops and we need to merge it together to return
+        it at the end
+
+    data : pandas.DataFrame
+        Dataframe containing the data from the list of dataframes stored on _data_frame
+        that will be looped throught.
+        On each main iteration represents the data from each ticker used to build the
+        Finance client object created
+
+    high : pandas.DataFrame
+        Dataframe containing only the 'high' column of the original, used to calculate
+        the diference and to obtain the max value that is also required
+
+    low : pandas.DataFrame
+        Dataframe containing only the 'low' column of the original, used to calculate
+        the diference and to obtain the low value that is also required
+
+    index : int
+        Auxiliar value that stores the maximum diff index found at each loop, its needed
+        to obtain the final values once the search (loop) ends.
+
+    maxmean : int
+        Auxiliar value that stores the maximum diff value mean found at each month, its needed
+        to compare with the new diff values that we found each loop, and check if we have
+        found a new maximum diference
+
+    aux : int
+        Auxiliar value that iterates with the loop to store its value on 'index' variable
+        each time 'maxdiff' finds a new maximum diference value, it counts the number of loops
+
+    dias : int
+        Auxiliar value that counts the number of days of data in that month so we can calculate
+        the mean
+
+    diffparcial : int
+        Auxiliar vlaue that stores the sumatory of the diference each month so we can calculate
+        the mean
+
+    years : int
+        Auxiliar value where we calculate the year needed to build the datetime.date for the
+        return value from the .index obtained at 'index' position
+
+    month : int
+        Auxiliar value where we calculate the month needed to build the datetime.date for the
+        return value from the .index obtained at 'index' position
+
+        """
         response = list()
         self._logger.info("Starting highest_monthly_mean_variation query")
         for data in self._data_frame:

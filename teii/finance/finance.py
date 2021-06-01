@@ -17,7 +17,15 @@ from teii.finance import FinanceClientIOError
 
 
 class FinanceClient(ABC):
-    """ Wrapper around the Finance API. """
+    """ Wrapper around the Finance API. 
+    
+    Attributes
+    ----------
+    
+    Methods
+    -------
+    
+    """
 
     _FinanceBaseQueryURL = "https://www.alphavantage.co/query?"  # Class variable
 
@@ -25,7 +33,23 @@ class FinanceClient(ABC):
                  api_key: Optional[str] = None,
                  logging_level: Union[int, str] = logging.INFO,
                  logging_file: Optional[str] = None) -> None:
-        """ FinanceClient constructor. """
+        """ FinanceClient constructor. 
+        
+        Parameters
+        ----------
+        
+        Returns
+        -------
+        
+        Other Parameters
+        ----------------
+        
+        Notes
+        -----
+        
+        Examples
+        --------
+        """
 
         self._ticker = ticker
         self._api_key = api_key
@@ -120,7 +144,23 @@ class FinanceClient(ABC):
         pass
 
     def _process_query_response(self, response: list) -> None:
-        """ Preprocess query data. """
+        """ Preprocess query data. 
+        
+        Parameters
+        ----------
+        
+        Returns
+        -------
+        
+        Other Parameters
+        ----------------
+        
+        Notes
+        -----
+        
+        Examples
+        --------
+        """
         json_data_downloaded = list()
         self._json_metadata = list()
         self._json_data = list()
@@ -147,7 +187,23 @@ class FinanceClient(ABC):
         pass
 
     def to_pandas(self) -> list:
-        """ Return pandas data frame from json data. """
+        """ Return pandas data frame from json data. 
+        
+        Parameters
+        ----------
+        
+        Returns
+        -------
+        
+        Other Parameters
+        ----------------
+        
+        Notes
+        -----
+        
+        Examples
+        --------
+        """
         response = list()
         for data in self._data_frame:
             assert data is not None
@@ -155,7 +211,23 @@ class FinanceClient(ABC):
         return response
 
     def to_csv(self, path2file: Path) -> Path:
-        """ Write json data into csv file 'path2file'. """
+        """ Write json data into csv file 'path2file'. 
+        
+        Parameters
+        ----------
+        
+        Returns
+        -------
+        
+        Other Parameters
+        ----------------
+        
+        Notes
+        -----
+        
+        Examples
+        --------
+        """
         for data in self._data_frame:
             assert data is not None
 
