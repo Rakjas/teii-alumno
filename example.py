@@ -3,7 +3,7 @@
 
 import logging
 import matplotlib.pyplot as plt
-
+import datetime as dt
 import teii.finance as tf
 
 
@@ -38,7 +38,7 @@ def main():
     logger.info("Inicio")
 
     # Define ticker y API key
-    ticker = 'AMZN'
+    ticker = ['AMZN',]
     my_alpha_vantage_api_key = 'https://www.alphavantage.co/support/#api-key'
 
     # Crea cliente
@@ -55,12 +55,14 @@ def main():
         #   Filtra los datos para mostrar únicamente el año 2020
 
         # Genera una serie de Pandas con precio de cierre diario
-        pd_series = tf_client.daily_price('2020-01-01', '2020-12-31')
+        from_date = dt.date(year = 2020, month = 1, day = 1)
+        to_date = dt.date(year = 2020, month = 12, day = 31)
+        pd_series = tf_client.daily_price(from_date, to_date)
 
         logger.info(pd_series)
 
         # Dibuja una gráfica a partir de la serie de Pandas
-        plot(pd_series, ticker, logger)
+        plot(pd_series[0], ticker, logger)
     finally:
         logger.info("Fin")
 

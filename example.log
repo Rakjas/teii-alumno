@@ -120,3 +120,40 @@ Name: close, Length: 253, dtype: float64
 Name: close, Length: 253, dtype: float64
 2021-05-30 18:52:35,894 - __main__ - INFO - Dibujando gráfica...
 2021-05-30 18:52:47,171 - __main__ - INFO - Fin
+2021-06-01 22:37:55,145 - __main__ - INFO - Logger creado
+2021-06-01 22:37:55,145 - __main__ - INFO - Inicio
+2021-06-01 22:37:55,145 - teii.finance.finance - INFO - API key configuration
+2021-06-01 22:37:55,145 - teii.finance.finance - INFO - Finance API access...
+2021-06-01 22:37:55,145 - teii.finance.finance - INFO - Building response from['AMZN']
+2021-06-01 22:37:55,145 - teii.finance.finance - INFO - IteratingAMZN
+2021-06-01 22:37:56,937 - teii.finance.finance - INFO - Appended response https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=AMZN&outputsize=full&apikey=https://www.alphavantage.co/support/#api-key
+2021-06-01 22:37:56,937 - teii.finance.finance - INFO - Successful API access [URL: https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=AMZN&outputsize=full&apikey=https://www.alphavantage.co/support/#api-key, status: 200]
+2021-06-01 22:37:56,937 - teii.finance.finance - INFO - Finance API query response processing...
+2021-06-01 22:37:56,937 - teii.finance.finance - INFO - Trying to process API
+2021-06-01 22:37:56,952 - teii.finance.finance - INFO - Metadata and data fields found
+2021-06-01 22:37:56,952 - teii.finance.finance - INFO - Metadata: {'1. Information': 'Daily Time Series with Splits and Dividend Events', '2. Symbol': 'AMZN', '3. Last Refreshed': '2021-06-01 16:00:01', '4. Output Size': 'Full size', '5. Time Zone': 'US/Eastern'}
+2021-06-01 22:37:56,962 - teii.finance.finance - INFO - Data: {"2021-06-01": {"1. open": "3243.5", "2. high": "3250.98", "3. low": "3209.06", "4. close": "3218.65", "5. adjusted close": "3218.65", "6. volume": "2308354", "7. dividend amount": "0.0000", "8. split coefficient": "1....
+2021-06-01 22:37:56,962 - teii.finance.finance - INFO - Finance API query data validation...
+2021-06-01 22:37:56,962 - teii.finance.finance - INFO - Metadata key '2. Symbol' = 'AMZN' found
+2021-06-01 22:37:56,980 - teii.finance.finance - INFO - {'Data from dict in JSON converted to DataFrame'}
+2021-06-01 22:37:56,980 - teii.finance.finance - INFO - {'Dataframe column names converted'}
+2021-06-01 22:37:56,982 - teii.finance.finance - INFO - {'Dataframe column converted to the right types'}
+2021-06-01 22:37:56,984 - teii.finance.finance - INFO - {'Dataframe index converted to datetime'}
+2021-06-01 22:37:56,985 - teii.finance.finance - INFO - {'Collected all data frames'}
+2021-06-01 22:37:56,985 - teii.finance.finance - INFO - Starting daily_price query
+2021-06-01 22:37:56,985 - teii.finance.finance - INFO - Extracting data from dataframe
+2021-06-01 22:37:56,985 - teii.finance.finance - INFO - Dates in daily_price are correct
+2021-06-01 22:37:56,985 - __main__ - INFO - [2020-01-02    1898.01
+2020-01-03    1874.97
+2020-01-06    1902.88
+2020-01-07    1906.86
+2020-01-08    1891.97
+               ...   
+2020-12-24    3172.69
+2020-12-28    3283.96
+2020-12-29    3322.00
+2020-12-30    3285.85
+2020-12-31    3256.93
+Name: close, Length: 253, dtype: float64]
+2021-06-01 22:37:56,986 - __main__ - INFO - Dibujando gráfica...
+2021-06-01 22:37:59,803 - __main__ - INFO - Fin
