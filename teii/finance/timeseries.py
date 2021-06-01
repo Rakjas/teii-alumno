@@ -93,7 +93,9 @@ class TimeSeriesFinanceClient(FinanceClient):
             https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=TICKER&outputsize=full&apikey=API_KEY&data_type=json
         """
         response = list()
+        self._logger.info(f"Building response from{self._ticker}")
         for tick in self._ticker:
+            self._logger.info(f"Iterating{tick}")
             response.append(f"function=TIME_SERIES_DAILY_ADJUSTED&symbol={tick}&outputsize=full&apikey={self._api_key}")
         return response
 
@@ -119,12 +121,13 @@ class TimeSeriesFinanceClient(FinanceClient):
                     to_date: Optional[dt.date] = None) -> list:
         """ Return daily close price from 'from_date' to 'to_date'. """
         response = list()
+        self._logger.info("Starting daily_price query")
         for data in self._data_frame:
 
             assert data is not None
 
             series = data['close']
-
+            self._logger.info("Extracting data from dataframe")
             # TODO: Tarea 3
             #   Comprueba el valor, tipo y secuencia de from_date/to_date y
             #   genera excepción 'FinanceClientParamError' en caso de error
@@ -140,6 +143,7 @@ class TimeSeriesFinanceClient(FinanceClient):
                 if(from_date > to_date):
                     raise FinanceClientParamError("from_date no puede ser una fecha posterior a to_date")
 
+                self._logger.info("Dates in daily_price are correct")
                 series = series.loc[from_date:to_date]   # type: ignore
             response.append(series)
         return response
@@ -149,11 +153,12 @@ class TimeSeriesFinanceClient(FinanceClient):
                      to_date: Optional[dt.date] = None) -> list:
         """ Return daily volume from 'from_date' to 'to_date'. """
         response = list()
+        self._logger.info("Starting daily_volume query")
         for data in self._data_frame:
             assert data is not None
 
             series = data['volume']
-
+            self._logger.info("Extracting data from dataframe")
             # TODO: Tarea 3
             #   Comprueba el valor, tipo y secuencia de from_date/to_date y
             #   genera excepción 'FinanceClientParamError' en caso de error
@@ -168,7 +173,7 @@ class TimeSeriesFinanceClient(FinanceClient):
                 # Comprobamos que from_date vaya antes de to_date
                 if(from_date > to_date):
                     raise FinanceClientParamError("from_date no puede ser una fecha posterior a to_date")
-
+                self._logger.info("Dates in daily_volume are correct")
                 series = series.loc[from_date:to_date]   # type: ignore
             response.append(series)
         return response
@@ -177,15 +182,16 @@ class TimeSeriesFinanceClient(FinanceClient):
                          from_year: Optional[int] = None,
                          to_year: Optional[int] = None) -> list:
         """ Return yearly dividends from 'from_year' to 'to_year'. """
-
+        self._logger.info("Starting yearly_dividend query")
         # TODO: Tarea 3
         #   Implementa este método...
         response = list()
+
         for data in self._data_frame:
             assert data is not None
 
             serie = pd.DataFrame(columns=('dividend',))
-
+            self._logger.info("Extracting data from dataframe")
             if from_year is not None and to_year is not None:
 
                 # Comprobamos que sean tipo int
@@ -195,7 +201,7 @@ class TimeSeriesFinanceClient(FinanceClient):
                 # Comprobamos que from_year vaya antes de to_year
                 if(from_year > to_year):
                     raise FinanceClientParamError("from_date no puede ser un año posterior a to_date")
-
+                self._logger.info("Dates in yearly_dividend are correct")
                 # Sacamos y calculamos el valor anual para la serie a devolver
                 for i in range(from_year, to_year+1):
 
@@ -223,7 +229,7 @@ class TimeSeriesFinanceClient(FinanceClient):
                                data['dividend'].tail(1).index.year.values.astype(int)[0] + 1):
 
                     series = data['dividend']
-
+                    self._logger.info("Extracting data from dataframe")
                     from_date = dt.date(year=i, month=1, day=1)
                     to_date = dt.date(year=i, month=12, day=31)
 
@@ -249,12 +255,13 @@ class TimeSeriesFinanceClient(FinanceClient):
         """ Return yearly dividends per quarter from 'from_year' to 'to_year'. """
         # TODO: Tarea 3
         #   Implementa este método...
+        self._logger.info("Starting yearly_dividend query")
         response = list()
         for data in self._data_frame:
             assert data is not None
 
             series = data['dividend']
-
+            self._logger.info("Extracting data from dataframe")
             if from_year is not None and to_year is not None:
 
                 # Comprobamos que sean tipo int
@@ -265,6 +272,7 @@ class TimeSeriesFinanceClient(FinanceClient):
                 if(from_year > to_year):
                     raise FinanceClientParamError("from_date no puede ser un año posterior a to_date")
 
+                self._logger.info("Dates in yearly_dividend are correct")
                 from_date = dt.date(year=from_year, month=1, day=1)
                 to_date = dt.date(year=to_year, month=12, day=31)
 
@@ -278,9 +286,10 @@ class TimeSeriesFinanceClient(FinanceClient):
     def highest_daily_variation(self) -> list:
         """Return date where the diference between high and low was the highest of the ticker"""
         response = list()
+        self._logger.info("Starting highest_daily_variation query")
         for data in self._data_frame:
             assert data is not None
-
+            self._logger.info("Extracting data from dataframe")
             high = data['high']
             low = data['low']
 
@@ -305,9 +314,10 @@ class TimeSeriesFinanceClient(FinanceClient):
     def highest_monthly_mean_variation(self) -> list:
         """Return month where the mean of the diference between high and low was the highest of the ticker"""
         response = list()
+        self._logger.info("Starting highest_monthly_mean_variation query")
         for data in self._data_frame:
             assert data is not None
-
+            self._logger.info("Extracting data from dataframe")
             index = 0
             maxmean = 0
             aux = 0

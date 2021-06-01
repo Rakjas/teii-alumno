@@ -91,9 +91,11 @@ class FinanceClient(ABC):
         """ Query API endpoint. """
         response = list()
         i = 0
-        for query in self._build_base_query_url_params():
+        to_iterate = self._build_base_query_url_params()
+        for query in to_iterate:
             try:
-                response.append(requests.get(f"{self._build_base_query_url()}{self._build_base_query_url_params()}"))
+                response.append(requests.get(f"{self._build_base_query_url()}{to_iterate[i]}"))
+                self._logger.info(f"Appended response {self._build_base_query_url()}{to_iterate[i]}")
                 assert response[i].status_code == 200
 
             except Exception as e:
@@ -102,7 +104,7 @@ class FinanceClient(ABC):
             else:
                 self._logger.info(f"Successful API access "
                                   f"[URL: {response[i].url}, status: {response[i].status_code}]")
-                i = i + 1
+            i = i + 1
         return response
 
     @classmethod
@@ -125,6 +127,7 @@ class FinanceClient(ABC):
         i = 0
         for responses in response:
             try:
+                self._logger.info("Trying to process API")
                 json_data_downloaded.append(responses.json())
                 self._json_metadata.append(json_data_downloaded[i][self._build_query_metadata_key()])
                 self._json_data.append(json_data_downloaded[i][self._build_query_data_key()])
@@ -133,8 +136,8 @@ class FinanceClient(ABC):
             else:
                 self._logger.info("Metadata and data fields found")
 
-            self._logger.info(f"Metadata: '{self._json_metadata[i]}'")
-            self._logger.info(f"Data: '{json.dumps(self._json_data[i])[0:218]}...'")
+            self._logger.info(f"Metadata: {self._json_metadata[i]}")
+            self._logger.info(f"Data: {json.dumps(self._json_data[i])[0:218]}...")
             i = i + 1
 
     @abstractclassmethod
