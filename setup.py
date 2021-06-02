@@ -32,6 +32,6 @@ setup(
     ],
     keywords=["teii"],
     packages=find_packages(exclude=['tests', 'tests.*']),   # excluye tests de .whl
-    install_requires=read("requirements.txt"),              # depende de pandas y requests
+    install_requires="pandas==1.2.3\nrequests==2.25.1",      # depende de pandas y requests
     python_requires=">=3.7",                                # no compatible con 3.6
 )
