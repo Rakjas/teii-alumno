@@ -5,11 +5,13 @@ import json
 import logging
 import os
 import requests
+import pandas  # type: ignore
 
 from abc import ABC, abstractclassmethod
 from pathlib import Path
 from typing import Optional, Union
 
+from typing import List
 from teii.finance import FinanceClientInvalidAPIKey
 from teii.finance import FinanceClientAPIError
 from teii.finance import FinanceClientInvalidData
@@ -17,7 +19,53 @@ from teii.finance import FinanceClientIOError
 
 
 class FinanceClient(ABC):
-    """ Wrapper around the Finance API. """
+    """
+    Wrapper around the Finance API.
+
+    Parameters
+    ----------
+    ticker : list of str
+        List of tickers wich will be used to query data from alpha vantage, each of
+        them will be answered with a json with financial data of the client represented
+        by that ticker (for example AMZN -> Amazon)
+
+    api_key : [optional] str, default = None
+        Api_key that will be used to request the data in the API
+
+    logging_level : [optional] Union of int and str, default logging.WARNING
+        Level of info that will be written by the logger in a log fil
+
+    logging_file : [optional] str, default = None
+        Path to the file were the log file will be written
+
+    Attributes
+    ----------
+    _data_frame : list of pandas.dataframes
+        Contains all the data from the tickers obtained from queries to de API after
+        being procesed and given the right format
+
+    _logger : object
+        Reference to the object that will be used to generate the log file
+
+    _json_data : list of dict
+        Where all the info obtained from the queries to the API will be stored
+        before being processed and transformed into a DataFrame
+
+    Methods
+    -------
+
+    __init__(ticker, api_key, logging_level, logging_file)
+        Constructor for TimeSeriesFinanceClient.
+
+    to_pandas()
+        Returns a list of data from ._data_frame.
+
+    to_csv(path2file)
+        Writes the data from ._data_frame into the file specified in
+        'path2file' in format csv, appends each of the data to the file
+        one after the other.
+
+    """
 
     _FinanceBaseQueryURL = "https://www.alphavantage.co/query?"  # Class variable
 
@@ -25,7 +73,33 @@ class FinanceClient(ABC):
                  api_key: Optional[str] = None,
                  logging_level: Union[int, str] = logging.INFO,
                  logging_file: Optional[str] = None) -> None:
-        """ FinanceClient constructor. """
+        """
+        FinanceClient constructor.
+
+        Parameters
+        ----------
+
+    ticker : list of str
+        List of tickers wich will be used to query data from alpha vantage, each of
+        them will be answered with a json with financial data of the client represented
+        by that ticker (for example AMZN -> Amazon).
+
+    api_key : [optional] str, default = None
+        Api_key that will be used to request the data in the API.
+
+    logging_level : [optional] Union of int and str, default logging.WARNING
+        Level of info that will be written by the logger in a log file.
+
+    logging_file : [optional], default = None
+        Path to the file were the log file will be written
+
+        Notes
+        -----
+        This class is the father of 'TimeSeriesFinanceClient.
+        This constructor is called with super() by his child and communicates
+        with Alpha Vantage data and realices the query obtaining the json data needed.
+        Also defines the abstract methods that will be called in the construction on his child.
+        """
 
         self._ticker = ticker
         self._api_key = api_key
@@ -65,7 +139,7 @@ class FinanceClient(ABC):
         # handler.setFormatter(formatter)
         # self._logger.addHandler(handler)
 
-    def _build_base_query_url(self) -> list:
+    def _build_base_query_url(self) -> str:
         """Return base query URL.
 
         URL is independent from the query type.
@@ -77,7 +151,7 @@ class FinanceClient(ABC):
         return self._FinanceBaseQueryURL
 
     @abstractclassmethod
-    def _build_base_query_url_params(self) -> str:
+    def _build_base_query_url_params(self) -> list:
         """ Return base query URL parameters.
         Parameters are dependent on the query type:
             https://www.alphavantage.co/documentation/
@@ -120,7 +194,27 @@ class FinanceClient(ABC):
         pass
 
     def _process_query_response(self, response: list) -> None:
-        """ Preprocess query data. """
+        """
+        Preprocess query data.
+
+        Parameters
+        ----------
+    response : list of json data
+        List containing the data obtained from de Alpha Vantage API
+
+        Other Parameters
+        ----------------
+    json_data_downloaded : list of json
+        List where we append the data obtained from the api on each loop
+        iteration of responses
+
+    _json_metadata : list of json metadata
+        Class parameter that stores the list of metadata of each json
+
+    _json_data : list of json data
+        Class parameter that stores the list of data of each json
+
+        """
         json_data_downloaded = list()
         self._json_metadata = list()
         self._json_data = list()
@@ -147,17 +241,53 @@ class FinanceClient(ABC):
         pass
 
     def to_pandas(self) -> list:
-        """ Return pandas data frame from json data. """
-        response = list()
+        """
+        Return pandas data frame from json data.
+
+        Returns
+        -------
+        List of pandas.dataframes with the data in '_data_frame'
+
+        Other Parameters
+        ----------------
+    data : pandas.DataFrame
+        Stores the data of each DataFrame in '_data_frame' on each
+        loop iteration
+
+    response : list of pandas.DataFrame
+        Variable where we append the data in each iteration to be
+        returned at the end.
+
+        """
+        response = list()  # type: List[pandas.DataFrame]
+        assert self._data_frame is not None
         for data in self._data_frame:
-            assert data is not None
             response.append(data)
         return response
 
     def to_csv(self, path2file: Path) -> Path:
-        """ Write json data into csv file 'path2file'. """
+        """
+        Write json data into csv file 'path2file'.
+
+        Parameters
+        ----------
+    path2file : str
+        Path and name of the file where will be stored all the info
+        from the '_data_frame' in csv format
+
+        Returns
+        -------
+        Path where it has been stored the .csv file
+
+        Other Parameters
+        ----------------
+    data : pandas.DataFrame
+        Stores the data of each DataFrame in '_data_frame' on each
+        loop iteration
+
+        """
+        assert self._data_frame is not None
         for data in self._data_frame:
-            assert data is not None
 
             try:
                 data.to_csv(path2file, mode='a')
