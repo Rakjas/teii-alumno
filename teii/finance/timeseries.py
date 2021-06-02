@@ -3,7 +3,7 @@
 
 import datetime as dt
 import logging
-import pandas as pd
+import pandas as pd  # type: ignore
 from calendar import monthrange
 
 from typing import Optional, Union
@@ -177,7 +177,7 @@ class TimeSeriesFinanceClient(FinanceClient):
             self._data_frame.append(data.sort_index(ascending=True))
         self._logger.info({"Collected all data frames"})
 
-    def _build_base_query_url_params(self) -> str:
+    def _build_base_query_url_params(self) -> list:
         """ Return base query URL parameters.
 
         Parameters are dependent on the query type:
@@ -410,10 +410,10 @@ class TimeSeriesFinanceClient(FinanceClient):
 
                     series = data['dividend']
 
-                    from_date = dt.date(year=i, month=1, day=1)
-                    to_date = dt.date(year=i, month=12, day=31)
+                    from_date = series.index.get_loc(pd.to_datetime(f"1/1/{i}"), method='bfill')
+                    to_date = series.index.get_loc(pd.to_datetime(f"31/12/{i}"), method='ffill')
 
-                    series = series.loc[from_date:to_date]
+                    series = series.iloc[from_date:to_date]
 
                     series = series[series != 0]
 
@@ -423,7 +423,7 @@ class TimeSeriesFinanceClient(FinanceClient):
 
                         total = total + value
 
-                    serie.loc[from_date] = [total]
+                    serie.loc[pd.to_datetime(f"1/1/{i}")] = [total]
 
             # no especificamos dates
             else:
@@ -433,10 +433,10 @@ class TimeSeriesFinanceClient(FinanceClient):
 
                     series = data['dividend']
                     self._logger.info("Extracting data from dataframe")
-                    from_date = dt.date(year=i, month=1, day=1)
-                    to_date = dt.date(year=i, month=12, day=31)
+                    from_date = series.index.get_loc(pd.to_datetime(f"1/1/{i}"), method='bfill')
+                    to_date = series.index.get_loc(pd.to_datetime(f"31/12/{i}"), method='ffill')
 
-                    series = series.loc[from_date:to_date]
+                    series = series.iloc[from_date:to_date]
 
                     series = series[series != 0]
                     total = 0
@@ -445,7 +445,7 @@ class TimeSeriesFinanceClient(FinanceClient):
 
                         total = total + value
 
-                    serie.loc[from_date] = [total]
+                    serie.loc[pd.to_datetime(f"1/1/{i}")] = [total]
 
             serie.index = serie.index.astype("datetime64[ns]")
             response.append(serie)
@@ -531,7 +531,7 @@ class TimeSeriesFinanceClient(FinanceClient):
         Other Parameters
         ----------------
     response : list of dataframes
-        Auxiliar variable that store the diferent data filtered, as it is 
+        Auxiliar variable that store the diferent data filtered, as it is
         generated on different loops and we need to merge it together to return
         it at the end.
 
@@ -656,7 +656,7 @@ class TimeSeriesFinanceClient(FinanceClient):
             assert data is not None
             self._logger.info("Extracting data from dataframe")
             index = 0
-            maxmean = 0
+            maxmean = 0.0
             aux = 0
 
             # recorremos anualmente los valores
@@ -671,8 +671,8 @@ class TimeSeriesFinanceClient(FinanceClient):
                     from_date = dt.date(year=i, month=j, day=1)
                     to_date = dt.date(year=i, month=j, day=monthrange(i, j)[1])
 
-                    high = high.loc[from_date:to_date]
-                    low = low.loc[from_date:to_date]
+                    high = high.loc[from_date:to_date]  # type: ignore
+                    low = low.loc[from_date:to_date]  # type: ignore
 
                     diffparcial = 0
                     dias = 0
