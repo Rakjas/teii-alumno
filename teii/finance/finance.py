@@ -20,7 +20,7 @@ from teii.finance import FinanceClientIOError
 
 class FinanceClient(ABC):
     """
-    Wrapper around the Finance API.
+    Wrapper around the Finance API
 
     Parameters
     ----------
